@@ -1,0 +1,152 @@
+#!/usr/bin/env python3
+
+import sys, os
+from datetime import datetime
+from optparse import OptionParser
+from math import pi
+import json
+
+# Options
+parser = OptionParser(usage="images")
+parser.add_option('-f', '--root', dest='root', default=os.getenv('IMAGES_ROOT', None),
+    help='specify a root folder to use when starting (env $IMAGES_ROOT)')
+
+options, args = parser.parse_args()
+
+import pygame
+from pygame.locals import *
+
+#from imagesgl.camera import Camera
+from imagesgl.directory import Directory
+from imagesgl.entry import Entry, IMAGE, COLLECTION, NOTE
+from imagesgl.scanner import Scanner
+from imagesgl.browser import Browser
+from imagesgl.browser import MODE_NORMAL, MODE_THUMBS, MODE_INPUT
+from imagesgl.inputbox import InputBox
+import os.path
+
+# Setting up graphics
+pygame.init()
+from imagesgl.drawing import clear_window, draw_thumbs, draw_image, draw_input_box
+fpsClock = pygame.time.Clock()
+win = pygame.display.set_mode((1280, 720), HWSURFACE | DOUBLEBUF | RESIZABLE, 32)
+pygame.display.set_caption("images")
+
+basepath = '/home/johan/Pictures/sessions'
+basepath = options.root or '.'
+directory_file = os.path.join(basepath, ".directory.json")
+settings_file = os.path.join(basepath, ".settings.json")
+directory = Directory(basepath)
+
+if os.path.exists(directory_file):
+    directory.load(directory_file)
+    deleted = directory.delete_all_in_category('D')
+    deldir = os.path.join(basepath, ".deleted")
+    if len(deleted) > 0:
+        if not os.path.exists(deldir):
+            os.mkdir(deldir)
+        t = datetime.now()
+        delfile = os.path.join(deldir, t.strftime("%Y%m%d_%H%M%S"))
+        with open(delfile, 'w') as d:
+            d.write(json.dumps(deleted, indent=2))
+else:
+    directory.directory_file = directory_file
+
+# Scan targetted directory
+scanner = Scanner(basepath, ext=['jpg', 'jpeg', 'collection'])
+for f in scanner.scan():
+    if f in directory:
+        continue
+    entry = Entry(f)
+    entry.categories = 'N'
+    directory[f] = entry
+    print("Added new file", f)
+
+# Load settings
+if os.path.exists(settings_file):
+    directory.load_settings(settings_file)
+else:
+    directory.settings_file = settings_file
+
+# Initialize commands
+from imagesgl import main_commands, browser_commands, image_commands
+browser = browser_commands.create(directory, sorted(directory.get_filtered_keys(excl='X')))
+browser.mode = MODE_THUMBS 
+
+# Set up environment
+class Environment:
+    def __init__(self, directory, browser, entry):
+        self.directory = directory
+        self.browser = browser
+        self.entry = entry
+        self.inputbox = InputBox()
+
+    def __repr__(self):
+        return "<Environment>"
+
+    @property
+    def winsize(self):
+        return pygame.display.get_surface().get_size()
+
+e = Environment(directory, browser, None)
+
+from imagesgl.command import Interpreter
+interpreter = Interpreter(e)
+interpreter.add_module(main_commands)
+interpreter.add_module(image_commands)
+interpreter.add_module(browser_commands)
+
+pygame.event.post(pygame.event.Event(pygame.USEREVENT, action='loaded'))
+
+################################################################################
+# MAIN LOOP
+################################################################################
+while True:
+    clear_window(win)
+
+    pygame.event.pump()
+    event = pygame.event.wait()
+
+    e.entry = e.browser.selected_image
+    mode = e.browser.mode
+    if not event.type == MOUSEMOTION:
+        if mode == MODE_NORMAL:
+            if not e.entry is None:
+                if e.entry.entry_type == IMAGE:
+                    if e.entry.loaded:
+                        draw_image(win, e.entry)
+                        pygame.display.flip()
+                elif e.entry.entry_type == COLLECTION:
+                    e.browser = browser_commands.create(e.directory, [])
+                    e.browser.load(e.entry.filename)
+                    e.entry.name = e.browser.name
+                    e.browser.mode = MODE_THUMBS
+                    pygame.display.flip()
+
+        elif mode == MODE_THUMBS:
+            draw_thumbs(win, e.browser)
+            pygame.display.flip()
+
+        elif mode == MODE_INPUT and interpreter.executer:
+            draw_input_box(win, interpreter.executer.inputbox)
+            pygame.display.flip()
+            
+    if event.type == QUIT:
+        pygame.display.quit()
+        sys.exit(0)
+
+    elif event.type == VIDEORESIZE:
+        screen = pygame.display.set_mode(
+            event.dict['size'], HWSURFACE | DOUBLEBUF | RESIZABLE)
+        e.entry.zoom(1)
+        e.browser.distributed = False
+
+    elif event.type == USEREVENT:
+        if event.action == 'loaded':
+            pass
+            #print("USEREVENT")
+
+    elif event.type == KEYDOWN:
+        interpreter.read_keys(e.browser.mode, event.mod, event.key, event.unicode)
+
+    fpsClock.tick(30)
