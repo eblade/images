@@ -40,6 +40,7 @@ class toggle_view(Command):
 
 class toggle_fullscreen(Command):
     def execute(self):
+        # should set fullscreen resolution here
         pygame.display.toggle_fullscreen()
 
 @NeedsInterpreter()
@@ -57,6 +58,9 @@ class command_mode(Command):
 @Param('value', str, None)
 class setting(Command):
     def execute(self, directory, key, value):
+        old_value = directory.settings.get(key, None)
+        if isinstance(old_value, (list, )):
+            value = ','.split(value) # Check this!
         directory.settings[key] = value
 
     def list_key(self, interpreter, flt):

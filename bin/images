@@ -32,12 +32,18 @@ fpsClock = pygame.time.Clock()
 win = pygame.display.set_mode((1280, 720), HWSURFACE | DOUBLEBUF | RESIZABLE, 32)
 pygame.display.set_caption("images")
 
-basepath = '/home/johan/Pictures/sessions'
 basepath = options.root or '.'
 directory_file = os.path.join(basepath, ".directory.json")
 settings_file = os.path.join(basepath, ".settings.json")
 directory = Directory(basepath)
 
+# Load settings
+if os.path.exists(settings_file):
+    directory.load_settings(settings_file)
+else:
+    directory.settings_file = settings_file
+
+# Load directory
 if os.path.exists(directory_file):
     directory.load(directory_file)
     deleted = directory.delete_all_in_category('D')
@@ -53,7 +59,7 @@ else:
     directory.directory_file = directory_file
 
 # Scan targetted directory
-scanner = Scanner(basepath, ext=['jpg', 'jpeg', 'collection'])
+scanner = Scanner(basepath, ext=directory.settgins.get('extension_filter', [])
 for f in scanner.scan():
     if f in directory:
         continue
@@ -61,12 +67,6 @@ for f in scanner.scan():
     entry.categories = 'N'
     directory[f] = entry
     print("Added new file", f)
-
-# Load settings
-if os.path.exists(settings_file):
-    directory.load_settings(settings_file)
-else:
-    directory.settings_file = settings_file
 
 # Initialize commands
 from imagesgl import main_commands, browser_commands, image_commands
@@ -90,6 +90,7 @@ class Environment:
 
 e = Environment(directory, browser, None)
 
+# Set up interpreter
 from imagesgl.command import Interpreter
 interpreter = Interpreter(e)
 interpreter.add_module(main_commands)

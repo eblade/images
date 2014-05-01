@@ -8,7 +8,10 @@ class Directory:
     def __init__(self, basepath):
         self.basepath = basepath
         self.entries = {}
-        self.settings = {}
+        self.settings = {
+            'export_dir': '~/Pictures',
+            'extension_filter': ['jpg', 'jpeg', 'collection'],
+        }
         self.directory_file = None
         self.settings_file = None
 
@@ -68,7 +71,7 @@ class Directory:
     def load_settings(self, filename=None):
         self.settings_file = filename or self.settings_file
         with open(self.settings_file, 'r') as f:
-            self.settings = json.load(f)
+            self.settings.update(json.load(f))
             #print(self.settings.get('categories'))
 
     def delete_all_in_category(self, category):

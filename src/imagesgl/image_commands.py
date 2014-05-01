@@ -143,3 +143,6 @@ class export_default(Command):
     def execute(self, directory, entry, name, longest_side):
         export_dir = os.path.expanduser(directory.settings.get('export_dir', ''))
         entry.export(directory.basepath, longest_side, export_dir, name+".jpg")
+
+    def list_longest_side(self, interpreter, flt):
+        return ['200', '400', '800', '1000', '1200', '1600']]
