@@ -16,7 +16,6 @@ def __repr__(): return "<module Main Commands>"
 @Shortcut((MODE_THUMBS, MODE_NORMAL), MOD_NONE, K_RETURN, 'toggle_view')
 @Shortcut((MODE_THUMBS, MODE_NORMAL), MOD_NONE, K_F5, 'toggle_fullscreen')
 @Shortcut((MODE_THUMBS, MODE_NORMAL), MOD_NONE, K_F1, 'command_mode')
-@Shortcut((MODE_THUMBS, MODE_NORMAL), MOD_NONE, K_F2, 'toggle_info')
 @Shortcut((MODE_THUMBS, MODE_NORMAL), MOD_SHIFT, K_SEMICOLON, 'command_mode')
 class image_shortcuts(ShortcutSet):
     pass
@@ -43,11 +42,6 @@ class toggle_fullscreen(Command):
     def execute(self):
         # should set fullscreen resolution here
         pygame.display.toggle_fullscreen()
-
-@NeedsBrowser()
-class toggle_view(Command):
-    def execute(self, browser):
-        browser.show_info = not browser.show_info
 
 @NeedsInterpreter()
 @Param('command', str, 'help')

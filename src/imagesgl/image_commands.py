@@ -19,6 +19,7 @@ def __repr__(): return "<module Image Commands>"
 @Shortcut(MODE_NORMAL, MOD_NONE, K_PAGEDOWN, 'zoom', .5)
 @Shortcut(MODE_NORMAL, MOD_NONE, K_0, 'zoom_0')
 @Shortcut(MODE_NORMAL, MOD_NONE, K_F1, 'zoom_fit')
+@Shortcut((MODE_THUMBS, MODE_NORMAL), MOD_NONE, K_F2, 'toggle_info')
 @Shortcut(MODE_NORMAL, MOD_NONE, K_UP, 'image_move', 0, -MOVE_SPEED)
 @Shortcut(MODE_NORMAL, MOD_NONE, K_DOWN, 'image_move', 0, +MOVE_SPEED)
 @Shortcut(MODE_NORMAL, MOD_NONE, K_LEFT, 'image_move', +MOVE_SPEED, 0)
@@ -146,3 +147,9 @@ class export_default(Command):
 
     def list_longest_side(self, interpreter, flt):
         return ['200', '400', '800', '1000', '1200', '1600']]
+
+@NeedsBrowser()
+class toggle_info(Command):
+    def execute(self, browser):
+        browser.show_info = not browser.show_info
+
