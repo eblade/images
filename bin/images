@@ -115,7 +115,10 @@ while True:
             if not e.entry is None:
                 if e.entry.entry_type == IMAGE:
                     if e.entry.loaded:
-                        draw_image(win, e.entry, show_info=e.browser.show_info)
+                        draw_image(win, e.entry, 
+                            show_info=e.browser.show_info,
+                            catmap=e.directory.settings.get('categories', {})
+                        )
                         pygame.display.flip()
                 elif e.entry.entry_type == COLLECTION:
                     e.browser = browser_commands.create(e.directory, [])
