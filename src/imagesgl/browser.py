@@ -22,6 +22,7 @@ class Browser:
         self.block_size = 200
         self.border = 5
         self.name = "Unititled collection"
+        self.show_info = False
 
         self.thumb_start_row = 0
         self.thumb_scroll_target = 0

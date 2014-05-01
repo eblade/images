@@ -62,15 +62,30 @@ def draw_thumbs(win, browser):
         (0, 0, title.get_width() + 12, title.get_height() + 4))
     win.blit(title, titleRect)
 
-def draw_image(win, image):
+def draw_image(win, image, show_info=False, catmap={}):
     win.blit(image.zoomed or image.original, image.position(pygame.display.get_surface().get_size()))
-    if image.categories:
-        cats = mainFont.render(str(image.categories), False, COLOR_TEXT)
-        catRect = cats.get_rect()
-        catRect.topleft = (2, 2)
+    if show_info:
+        info_text = entry.filename + '\n'
+        if image.categories:
+            info_text += "\n[Categories]\n"
+            for category in image.category:
+                info_text += '%s - %s\n' % (
+                    category,
+                    catmap.get(category, {}).get('name', '?'),
+                )
+        info_text += "\n[Properties]\n"
+        info_text += "Dimensions: (%i, %i)\n" % (entry.width, entry.height)
+        info_text += "Thumb tiles: (%i, %i)\n" % (entry.thumb_width, entry.thumb_height)
+        info_text += "Angle: %i\n" % entry.angle
+        info_text += "Marked: %si\n" % 'Yes' if entry.marked else 'No'
+        info_text += "\n[Comment]\n"
+        info_text += entry.comment
+        info = mainFont.render(info_text), False, COLOR_TEXT)
+        infoRect = cats.get_rect()
+        infoRect.topleft = (2, 2)
         pygame.draw.rect(pygame.display.get_surface(), COLOR_TEXT_BACK,
-            (0, 0, cats.get_width() + 4, cats.get_height() + 4))
-        win.blit(cats, catRect)
+            (0, 0, info.get_width() + 4, info.get_height() + 4))
+        win.blit(info, infoRect)
 
 def draw_input_box(win, inputbox):
     title = mainFont.render(inputbox.display, False, COLOR_TEXT)
