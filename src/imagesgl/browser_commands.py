@@ -162,4 +162,4 @@ class export_browser_default(Command):
             name_c += 1
 
     def list_longest_side(self, interpreter, flt):
-        return ['200', '400', '800', '1000', '1200', '1600']]
+        return ['200', '400', '800', '1000', '1200', '1600']

@@ -59,7 +59,7 @@ else:
     directory.directory_file = directory_file
 
 # Scan targetted directory
-scanner = Scanner(basepath, ext=directory.settgins.get('extension_filter', [])
+scanner = Scanner(basepath, ext=directory.settings.get('extension_filter', []))
 for f in scanner.scan():
     if f in directory:
         continue

@@ -80,7 +80,7 @@ def draw_image(win, image, show_info=False, catmap={}):
         info_text += "Marked: %si\n" % 'Yes' if entry.marked else 'No'
         info_text += "\n[Comment]\n"
         info_text += entry.comment
-        info = mainFont.render(info_text), False, COLOR_TEXT)
+        info = mainFont.render(info_text, False, COLOR_TEXT)
         infoRect = cats.get_rect()
         infoRect.topleft = (2, 2)
         pygame.draw.rect(pygame.display.get_surface(), COLOR_TEXT_BACK,
