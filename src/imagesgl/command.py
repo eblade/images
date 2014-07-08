@@ -8,6 +8,7 @@ from pygame.locals import *
 MOD_NONE = 0
 MOD_SHIFT = 1
 MOD_CTRL = 64
+MOD_WTF = 4096
 
 ### Decorators
 
@@ -221,6 +222,7 @@ class Interpreter:
             print("No shortcut found for", mode, mod, key)
 
     def _generate_keys(self, mode, mod, key):
+        if mod >= MOD_WTF: mod -= MOD_WTF
         for m in (mode, MODE_ANY):
             yield "%s-%s-%s" % (m, str(mod), str(key))
 
@@ -265,6 +267,11 @@ class Executer:
             if param is None:
                 print("MISSING PARAM", self.command.__params__)
                 continue
+            if param.datatype is bool:
+                if self.value[param.name] in ('1', 'yes', 'y', 'true', 'True'):
+                    self.value[param.name] = True
+                else:
+                    self.value[param.name] = False
             try:
                 self.values[param.name] = param.datatype(arg)
             except ValueError:

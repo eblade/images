@@ -15,6 +15,8 @@ def __repr__(): return "<module Image Commands>"
 
 @Shortcut((MODE_NORMAL, MODE_THUMBS), MOD_NONE, K_PERIOD, 'rotate', +90)
 @Shortcut((MODE_NORMAL, MODE_THUMBS), MOD_NONE, K_COMMA, 'rotate', -90)
+@Shortcut(MODE_NORMAL, MOD_SHIFT, K_PERIOD,    'rotate_no_thumb', +90)
+@Shortcut(MODE_NORMAL, MOD_SHIFT, K_COMMA,     'rotate_no_thumb', -90)
 @Shortcut(MODE_NORMAL, MOD_NONE, K_PAGEUP, 'zoom', 2)
 @Shortcut(MODE_NORMAL, MOD_NONE, K_PAGEDOWN, 'zoom', .5)
 @Shortcut(MODE_NORMAL, MOD_NONE, K_0, 'zoom_0')
@@ -66,6 +68,16 @@ class rotate(Command):
     def list_angle(self, interpreter, flt):
         return ['+90', '-90', '+180', '-180']
 
+@NeedsEntry()
+@NeedsDirectory()
+@NeedsBrowser()
+@Param('angle', int, 0)
+class rotate_no_thumb(Command):
+    def execute(self, entry, directory, browser, angle):
+        entry.rotate(angle)
+    
+    def list_angle(self, interpreter, flt):
+        return ['+90', '-90', '+180', '-180']
 @NeedsEntry()
 @Param('x', int, 0)
 @Param('y', int, 0)
