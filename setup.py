@@ -6,7 +6,7 @@ from distutils.core import setup
 name_ = 'images'
 version_ = '0.0.1'
 packages_ = [
-    'image',
+    'imagesgl',
 ]
 
 classifiers = [
