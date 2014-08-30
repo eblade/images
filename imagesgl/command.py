@@ -268,14 +268,15 @@ class Executer:
                 print("MISSING PARAM", self.command.__params__)
                 continue
             if param.datatype is bool:
-                if self.value[param.name] in ('1', 'yes', 'y', 'true', 'True'):
-                    self.value[param.name] = True
+                if str(arg) in ('1', 'yes', 'y', 'true', 'True'):
+                    self.values[param.name] = True
                 else:
-                    self.value[param.name] = False
-            try:
-                self.values[param.name] = param.datatype(arg)
-            except ValueError:
-                self.values[param.name] = param.default
+                    self.values[param.name] = False
+            else:
+                try:
+                    self.values[param.name] = param.datatype(arg)
+                except ValueError:
+                    self.values[param.name] = param.default
             self.param += 1
 
         if self.param >= self.command.length:
